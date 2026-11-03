@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>電腦維修領料還料｜期中作品 v1.1</title>
+<style>
+:root{
+  --ink:#1b2a33; --muted:#4b5b64; --brand:#0b5f8a; --brand-soft:#e6f1f7;
+  --line:#d3dde2; --paper:#f2f5f7; --ok:#1d6b3f; --ok-soft:#e7f4ec;
+  --danger:#a3262f; --danger-soft:#fdeeee; --warn-soft:#fff6db; --focus:#b34700;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#dfe6ea;color:var(--ink);font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;font-size:16px;line-height:1.6}
+.app{max-width:480px;margin:auto;background:var(--paper);min-height:100vh;padding-bottom:8px}
+header{background:var(--ink);color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+header b{font-size:20px}
+.tag{font-size:16px;border:1px solid #9fb1ba;padding:2px 8px;border-radius:20px}
+.mode{padding:6px 14px;text-align:center;background:var(--warn-soft);font-weight:bold}
+h1{font-size:22px;margin:0 0 4px}
+h2{font-size:18px;margin:0 0 10px}
+p{margin:6px 0}
+.muted{color:var(--muted)}
+.intro{padding:16px 18px 4px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled,input:disabled,select:disabled{cursor:not-allowed;opacity:.5}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 14px 0;background:#d5dfe5;padding:4px;border-radius:12px}
+.tabs button{min-height:48px;border:0;border-radius:9px;background:transparent;font-weight:bold;color:var(--ink)}
+.tabs button[aria-pressed=true]{background:#fff;color:var(--brand);box-shadow:0 1px 3px #0002}
+.section{margin:12px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.sectionhead h2{margin:0}
+label,.label{display:block;font-weight:bold;margin:12px 0 4px}
+select,input[type=text],input[type=search],input[type=number]{width:100%;min-height:48px;border:1px solid #8ea2ad;border-radius:8px;padding:8px 10px;background:#fff}
+.wo-card{background:var(--brand-soft);border-radius:8px;padding:8px 12px;margin-top:10px}
+.wo-card[hidden]{display:none}
+.textbtn{border:0;background:none;color:var(--brand);font-weight:bold;min-height:48px;min-width:48px;padding:8px 10px}
+.status{margin:10px 0 0;padding:10px 12px;border-radius:8px;background:var(--paper)}
+.status.error{background:var(--danger-soft);color:var(--danger)}
+.status.empty{background:var(--warn-soft)}
+.status[hidden]{display:none}
+.status button{margin-top:8px}
+.list{display:grid;gap:8px;margin-top:10px}
+.item{display:flex;gap:10px;align-items:flex-start;border:1px solid #b7c6ce;border-radius:10px;padding:10px 12px;min-height:56px;cursor:pointer;background:#fff}
+.item input{width:22px;height:22px;margin:3px 0 0;flex:none;accent-color:var(--brand)}
+.item:has(input:checked){border:2px solid var(--brand);background:var(--brand-soft)}
+.item:has(input:disabled){background:#eef1f3;cursor:not-allowed}
+.item b{display:block}
+.item .meta{color:var(--muted)}
+.badge{display:inline-block;padding:0 8px;border-radius:6px;background:#e3e9ec;font-weight:bold}
+.badge.out{background:var(--danger-soft);color:var(--danger)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips button{min-height:48px;min-width:48px;padding:6px 14px;border:1px solid #8ea2ad;border-radius:24px;background:#fff;font-weight:bold}
+.chips button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+.skeleton{height:56px;border-radius:10px;background:linear-gradient(90deg,#e5ebee,#f3f6f8,#e5ebee);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
+.qty{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center}
+.qty button{min-height:48px;border:1px solid var(--brand);background:#fff;color:var(--brand);border-radius:8px;font-size:22px;font-weight:bold}
+.qty input{text-align:center;font-size:20px}
+.hint{color:var(--muted);margin-top:6px}
+.hint.bad{color:var(--danger);font-weight:bold}
+fieldset{border:0;padding:0;margin:12px 0 0}
+fieldset[hidden]{display:none}
+legend{font-weight:bold;padding:0;margin-bottom:4px}
+.radio{display:flex;gap:10px;align-items:center;min-height:48px;cursor:pointer}
+.radio input{width:22px;height:22px;accent-color:var(--brand)}
+.primary{width:100%;min-height:52px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:bold;padding:10px 14px}
+.secondary{width:100%;min-height:48px;border:1px solid var(--brand);border-radius:9px;background:#fff;color:var(--brand);font-weight:bold;padding:8px 14px;margin-top:8px}
+.action{position:sticky;bottom:0;background:#ffffffef;padding:10px 14px;border-top:1px solid var(--line);margin-top:12px}
+.action p{text-align:center;margin:6px 0 0;color:var(--muted)}
+.result{margin:12px 14px;padding:16px;border-radius:14px;border:1px solid #79b895;background:var(--ok-soft);scroll-margin-top:16px}
+.result.error{border-color:#e0a0a4;background:var(--danger-soft)}
+.result[hidden]{display:none}
+.result h2{margin-bottom:6px}
+.result dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:8px 0 0}
+.result dt{color:var(--muted)}
+.result dd{margin:0;font-weight:bold;overflow-wrap:anywhere}
+.log{list-style:none;padding:0;margin:0}
+.log li{border-top:1px solid var(--line);padding:8px 0}
+.log li:first-child{border-top:0}
+.lab{margin:16px 14px;padding:14px;border:1px dashed #7d929c;background:#edf1f3;border-radius:10px}
+summary{cursor:pointer;font-weight:bold;min-height:48px;display:flex;align-items:center}
+.trace{background:#1b2a33;color:#e2f0a8;border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-word;font:16px/1.5 Consolas,monospace;max-height:320px;overflow:auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><b>電腦維修料件櫃</b><span class="tag">期中作品 v1.1</span></header>
+  <div class="mode" id="mode">檢查連線方式中…</div>
+
+  <div class="intro">
+    <h1 id="title">依工單領料</h1>
+    <p class="muted" id="subtitle">選工單 → 選料件 → 填數量 → 確認，取得領料單號。</p>
+  </div>
+
+  <div class="tabs" role="group" aria-label="作業類型">
+    <button type="button" id="tabIssue" aria-pressed="true">領料</button>
+    <button type="button" id="tabReturn" aria-pressed="false">還料</button>
+  </div>
+
+  <main>
+    <section class="section" id="secWo">
+      <h2>01 選擇工單</h2>
+      <label for="wo">工單編號（必填）</label>
+      <select id="wo"><option value="">讀取工單中…</option></select>
+      <div class="wo-card" id="woCard" hidden></div>
+    </section>
+
+    <section class="section" id="secParts">
+      <div class="sectionhead">
+        <h2 id="partsTitle">02 選擇料件</h2>
+        <button type="button" class="textbtn" id="refresh">更新庫存</button>
+      </div>
+      <div id="searchWrap">
+        <label for="search">搜尋料件名稱或料號</label>
+        <input id="search" type="search" placeholder="例如：DDR5、SSD、650W" autocomplete="off">
+        <div class="chips" id="chips" role="group" aria-label="料件分類"></div>
+      </div>
+      <p class="muted" id="fresh" aria-live="polite"></p>
+      <div class="status" id="listStatus" role="status" hidden></div>
+      <div class="list" id="list" role="radiogroup" aria-labelledby="partsTitle"></div>
+    </section>
+
+    <section class="section" id="secQty">
+      <h2>03 數量</h2>
+      <label for="qty" id="qtyLabel">領料數量</label>
+      <div class="qty">
+        <button type="button" id="minus" aria-label="數量減一">−</button>
+        <input id="qty" type="number" inputmode="numeric" min="1" step="1" value="1" aria-describedby="qtyHint">
+        <button type="button" id="plus" aria-label="數量加一">＋</button>
+      </div>
+      <p class="hint" id="qtyHint">請先選擇料件。</p>
+      <fieldset id="condBox" hidden>
+        <legend>還料狀態</legend>
+        <label class="radio"><input type="radio" name="cond" value="未拆封" checked> 未拆封（可直接回庫）</label>
+        <label class="radio"><input type="radio" name="cond" value="已拆封可用"> 已拆封、仍可用（需檢驗）</label>
+      </fieldset>
+    </section>
+
+    <section class="result" id="result" tabindex="-1" aria-live="polite" hidden></section>
+
+    <section class="section" id="secLog">
+      <h2>本次操作紀錄</h2>
+      <ul class="log" id="log"><li class="muted">尚無紀錄。完成領料或還料後會列在這裡，方便核對。</li></ul>
+    </section>
+  </main>
+
+  <div class="action">
+    <button type="button" class="primary" id="submit" disabled>讀取資料中…</button>
+    <p>練習資料：工單、料號、庫存皆為虛構</p>
+  </div>
+
+  <details class="lab" id="lab">
+    <summary>練習情境與資料往返紀錄（測試用）</summary>
+    <p>GET＝向服務讀取資料；POST＝把資料送給服務處理；交換內容用 JSON。直接開檔案或放在靜態網站時，以下是頁面內的模擬紀錄，不是真的網路請求。</p>
+    <label for="scenario">下一次請求要模擬的情況</label>
+    <select id="scenario">
+      <option value="normal">正常</option>
+      <option value="loadFail">讀取失敗（503）</option>
+      <option value="conflict">送出時庫存已被別人領走（409）</option>
+      <option value="lost">送出後連線中斷（結果不明）</option>
+    </select>
+    <p class="muted">模擬一次後會自動切回「正常」，方便測試重試。</p>
+    <button type="button" class="secondary" id="reset">重設練習資料</button>
+    <pre class="trace" id="trace">等待操作…</pre>
+    <p>本地模擬時，資料只存在目前這個分頁：重新整理會回到初始庫存，不同分頁不共用。用 server.py 開啟時，資料存在本機服務程式中，分頁之間共用，關閉服務後重設。</p>
+  </details>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const pause = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- 模擬資料（本地模式使用；server.py 有同樣一份） ---------- */
+const SEED = {
+ "workOrders": [
+  {
+   "workOrderId": "WO-1102",
+   "equipment": "自組桌機（客戶送修）",
+   "issue": "按電源無反應，疑似電源供應器故障"
+  },
+  {
+   "workOrderId": "WO-1105",
+   "equipment": "Acer Aspire 筆電",
+   "issue": "開機很慢，客戶要換 SSD 升級"
+  },
+  {
+   "workOrderId": "WO-1108",
+   "equipment": "辦公室桌機 3 台",
+   "issue": "記憶體升級與內部清潔"
+  }
+ ],
+ "parts": [
+  {
+   "partId": "C-I3-14100",
+   "name": "Intel Core i3-14100",
+   "category": "CPU",
+   "unit": "顆",
+   "stock": 5,
+   "location": "A-01"
+  },
+  {
+   "partId": "C-I5-14400",
+   "name": "Intel Core i5-14400",
+   "category": "CPU",
+   "unit": "顆",
+   "stock": 4,
+   "location": "A-02"
+  },
+  {
+   "partId": "C-I7-14700",
+   "name": "Intel Core i7-14700",
+   "category": "CPU",
+   "unit": "顆",
+   "stock": 1,
+   "location": "A-03"
+  },
+  {
+   "partId": "C-R5-7600",
+   "name": "AMD Ryzen 5 7600",
+   "category": "CPU",
+   "unit": "顆",
+   "stock": 3,
+   "location": "A-04"
+  },
+  {
+   "partId": "C-R7-7700",
+   "name": "AMD Ryzen 7 7700",
+   "category": "CPU",
+   "unit": "顆",
+   "stock": 0,
+   "location": "A-05"
+  },
+  {
+   "partId": "R-D4-8G",
+   "name": "DDR4 8GB 3200 桌機用",
+   "category": "RAM",
+   "unit": "條",
+   "stock": 12,
+   "location": "B-01"
+  },
+  {
+   "partId": "R-D4-16G",
+   "name": "DDR4 16GB 3200 桌機用",
+   "category": "RAM",
+   "unit": "條",
+   "stock": 6,
+   "location": "B-02"
+  },
+  {
+   "partId": "R-D5-16G",
+   "name": "DDR5 16GB 5600 桌機用",
+   "category": "RAM",
+   "unit": "條",
+   "stock": 4,
+   "location": "B-03"
+  },
+  {
+   "partId": "R-D4-8G-NB",
+   "name": "DDR4 8GB 3200 筆電用（SO-DIMM）",
+   "category": "RAM",
+   "unit": "條",
+   "stock": 5,
+   "location": "B-04"
+  },
+  {
+   "partId": "R-D5-16G-NB",
+   "name": "DDR5 16GB 5600 筆電用（SO-DIMM）",
+   "category": "RAM",
+   "unit": "條",
+   "stock": 2,
+   "location": "B-05"
+  },
+  {
+   "partId": "S-NV-512",
+   "name": "SSD 512GB M.2 NVMe",
+   "category": "硬碟",
+   "unit": "顆",
+   "stock": 8,
+   "location": "C-01"
+  },
+  {
+   "partId": "S-NV-1T",
+   "name": "SSD 1TB M.2 NVMe",
+   "category": "硬碟",
+   "unit": "顆",
+   "stock": 3,
+   "location": "C-02"
+  },
+  {
+   "partId": "S-SA-500",
+   "name": "SSD 500GB 2.5 吋 SATA",
+   "category": "硬碟",
+   "unit": "顆",
+   "stock": 4,
+   "location": "C-03"
+  },
+  {
+   "partId": "H-1T",
+   "name": "傳統硬碟 HDD 1TB 3.5 吋",
+   "category": "硬碟",
+   "unit": "顆",
+   "stock": 2,
+   "location": "C-04"
+  },
+  {
+   "partId": "H-2T",
+   "name": "傳統硬碟 HDD 2TB 3.5 吋",
+   "category": "硬碟",
+   "unit": "顆",
+   "stock": 0,
+   "location": "C-05"
+  },
+  {
+   "partId": "M-B760-D4",
+   "name": "Intel B760 M-ATX（DDR4）",
+   "category": "主機板",
+   "unit": "片",
+   "stock": 2,
+   "location": "D-01"
+  },
+  {
+   "partId": "M-B760-D5",
+   "name": "Intel B760 M-ATX（DDR5）",
+   "category": "主機板",
+   "unit": "片",
+   "stock": 1,
+   "location": "D-02"
+  },
+  {
+   "partId": "M-H610",
+   "name": "Intel H610 M-ATX",
+   "category": "主機板",
+   "unit": "片",
+   "stock": 3,
+   "location": "D-03"
+  },
+  {
+   "partId": "M-B650",
+   "name": "AMD B650 M-ATX",
+   "category": "主機板",
+   "unit": "片",
+   "stock": 1,
+   "location": "D-04"
+  },
+  {
+   "partId": "M-A620",
+   "name": "AMD A620 M-ATX",
+   "category": "主機板",
+   "unit": "片",
+   "stock": 2,
+   "location": "D-05"
+  },
+  {
+   "partId": "P-550B",
+   "name": "電源供應器 550W 80+ 銅牌",
+   "category": "電源",
+   "unit": "個",
+   "stock": 3,
+   "location": "E-01"
+  },
+  {
+   "partId": "P-650B",
+   "name": "電源供應器 650W 80+ 銅牌",
+   "category": "電源",
+   "unit": "個",
+   "stock": 2,
+   "location": "E-02"
+  },
+  {
+   "partId": "P-750G",
+   "name": "電源供應器 750W 80+ 金牌",
+   "category": "電源",
+   "unit": "個",
+   "stock": 1,
+   "location": "E-03"
+  },
+  {
+   "partId": "P-NB65C",
+   "name": "筆電變壓器 65W（USB-C）",
+   "category": "電源",
+   "unit": "個",
+   "stock": 4,
+   "location": "E-04"
+  },
+  {
+   "partId": "P-NB90",
+   "name": "筆電變壓器 90W（圓頭）",
+   "category": "電源",
+   "unit": "個",
+   "stock": 2,
+   "location": "E-05"
+  },
+  {
+   "partId": "X-PASTE",
+   "name": "散熱膏",
+   "category": "配件",
+   "unit": "支",
+   "stock": 10,
+   "location": "F-01"
+  },
+  {
+   "partId": "X-COOLER",
+   "name": "CPU 散熱器（塔扇）",
+   "category": "配件",
+   "unit": "個",
+   "stock": 3,
+   "location": "F-02"
+  },
+  {
+   "partId": "X-FAN12",
+   "name": "機殼風扇 12cm",
+   "category": "配件",
+   "unit": "個",
+   "stock": 6,
+   "location": "F-03"
+  },
+  {
+   "partId": "X-SATA",
+   "name": "SATA 傳輸線",
+   "category": "配件",
+   "unit": "條",
+   "stock": 15,
+   "location": "F-04"
+  },
+  {
+   "partId": "X-CR2032",
+   "name": "主機板 CMOS 電池（CR2032）",
+   "category": "配件",
+   "unit": "顆",
+   "stock": 20,
+   "location": "F-05"
+  },
+  {
+   "partId": "X-M2SCR",
+   "name": "M.2 固定螺絲",
+   "category": "配件",
+   "unit": "包",
+   "stock": 8,
+   "location": "F-06"
+  },
+  {
+   "partId": "X-CAT6",
+   "name": "網路線 Cat.6（1.5M）",
+   "category": "配件",
+   "unit": "條",
+   "stock": 10,
+   "location": "F-07"
+  },
+  {
+   "partId": "X-TIE",
+   "name": "束線帶",
+   "category": "配件",
+   "unit": "包",
+   "stock": 5,
+   "location": "F-08"
+  }
+ ],
+ "issued": {
+  "WO-1102": {
+   "P-650B": 1,
+   "X-PASTE": 1
+  },
+  "WO-1105": {},
+  "WO-1108": {
+   "R-D4-8G": 4,
+   "X-TIE": 2
+  }
+ }
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+let db = clone(SEED), seen = {};   // seen：requestId → 已處理過的回應（避免重複領料）
+
+/* ---------- 畫面狀態 ---------- */
+let connected = false;
+const S = {
+  mode:'issue', cat:'全部', workOrders:[], woId:'', parts:[], issued:[], partId:'',
+  loading:false, loadError:'', busy:false, pending:null, logs:[]
+};
+
+/* ---------- 資料往返：真的 HTTP 或本地模擬 ---------- */
+const traceLines = [];
+function record(t){ traceLines.unshift(t); $('trace').textContent = traceLines.slice(0,30).join('\n\n'); }
+
+async function exchange(method, url, body){
+  const scenario = $('scenario').value;
+  // 「讀取失敗」作用在 GET；「衝突」「中斷」作用在 POST。每種失敗只模擬一次。
+  const applies = !url.includes('/demo/') && (scenario==='loadFail' ? method==='GET' : method==='POST');
+  if (scenario!=='normal' && applies) $('scenario').value = 'normal';
+  record((connected?'送出請求 ':'本地模擬 ')+method+' '+url+(body?'\n'+JSON.stringify(body,null,2):''));
+  let code, value;
+  if (connected) {
+    const res = await fetch(url,{method,headers:{'Content-Type':'application/json','X-Demo-Scenario':scenario},...(body?{body:JSON.stringify(body)}:{})});
+    code = res.status; value = await res.json();
+  } else {
+    await pause(700);
+    ({code, value} = simulate(method, url, body, scenario));
+  }
+  value = clone(value);   // 模擬時也只拿到一份複本，和真的 HTTP 回應一樣
+  record((connected?'HTTP 回應 ':'模擬回應 ')+code+'\n'+JSON.stringify(value,null,2));
+  return {code, value};
+}
+
+function partOf(id){ return db.parts.find(p=>p.partId===id); }
+function simulate(method, url, body, scenario){
+  if (url==='/api/demo/reset'){ db=clone(SEED); seen={}; return {code:200,value:{reset:true}}; }
+  if (method==='GET'){
+    if (scenario==='loadFail') return {code:503,value:{message:'料件服務暫時無法回應'}};
+    if (url==='/api/workorders') return {code:200,value:{workOrders:db.workOrders}};
+    if (url==='/api/parts') return {code:200,value:{parts:db.parts,updatedAt:new Date().toLocaleTimeString('zh-TW',{hour12:false})}};
+    const m = url.match(/^\/api\/workorders\/([\w-]+)\/issued$/);
+    if (m){
+      const map = db.issued[m[1]]; if(!map) return {code:404,value:{message:'找不到此工單'}};
+      const items = Object.entries(map).filter(([,q])=>q>0).map(([pid,q])=>{const p=partOf(pid);return {partId:pid,name:p.name,unit:p.unit,location:p.location,outstanding:q};});
+      return {code:200,value:{workOrderId:m[1],items}};
+    }
+    return {code:404,value:{message:'找不到此位置'}};
+  }
+  // POST
+  if (body.requestId && seen[body.requestId]) return seen[body.requestId];   // 同一請求重送：回傳上次結果
+  const wo = db.issued[body.workOrderId], p = partOf(body.partId), q = body.qty;
+  if (!wo || !p || !Number.isInteger(q) || q<1) return {code:400,value:{message:'工單、料件或數量不正確'}};
+  let out;
+  if (url==='/api/issues'){
+    if (scenario==='conflict') p.stock = Math.max(0, q-1);       // 模擬：別人剛好先領走
+    if (q > p.stock) out = {code:409,value:{message:`庫存不足，目前只剩 ${p.stock} ${p.unit}`,stock:p.stock}};
+    else { p.stock -= q; wo[p.partId]=(wo[p.partId]||0)+q;
+      out = {code:201,value:{issueId:'ISS-'+Date.now().toString().slice(-6),workOrderId:body.workOrderId,partId:p.partId,name:p.name,qty:q,unit:p.unit,location:p.location,remainingStock:p.stock}}; }
+  } else if (url==='/api/returns'){
+    const owed = wo[p.partId]||0;
+    if (!['未拆封','已拆封可用'].includes(body.condition)) return {code:400,value:{message:'請選擇還料狀態'}};
+    if (q > owed) out = {code:409,value:{message:`此工單只有 ${owed} ${p.unit} 待還`,outstanding:owed}};
+    else { wo[p.partId]=owed-q; p.stock += q;
+      out = {code:201,value:{returnId:'RET-'+Date.now().toString().slice(-6),workOrderId:body.workOrderId,partId:p.partId,name:p.name,qty:q,unit:p.unit,condition:body.condition,location:p.location,remainingOutstanding:owed-q}}; }
+  } else return {code:404,value:{message:'找不到此位置'}};
+  if (body.requestId && out.code===201) seen[body.requestId]=out;
+  if (scenario==='lost' && out.code===201) throw new Error('lost');  // 已處理，但回應沒回來
+  return out;
+}
+
+/* ---------- 讀取 ---------- */
+async function loadWorkOrders(){
+  const r = await exchange('GET','/api/workorders');
+  if (r.code!==200){ $('wo').replaceChildren(new Option('工單讀取失敗，請按下方重試','')); throw Error(r.value.message); }
+  S.workOrders = r.value.workOrders;
+  $('wo').replaceChildren(new Option('請選擇工單',''), ...S.workOrders.map(w=>new Option(`${w.workOrderId}｜${w.equipment}`, w.workOrderId)));
+  $('wo').value = S.woId;
+}
+
+async function loadList(){
+  S.loading = true; S.loadError=''; renderList(); update();
+  try{
+    if (!S.workOrders.length) await loadWorkOrders();
+    if (S.mode==='issue'){
+      const r = await exchange('GET','/api/parts');
+      if (r.code!==200) throw Error(r.value.message);
+      S.parts = r.value.parts;
+      $('fresh').textContent = `庫存更新於 ${r.value.updatedAt}，送出時會再確認。`;
+    } else {
+      if (!S.woId){ S.issued=[]; $('fresh').textContent=''; }
+      else {
+        const r = await exchange('GET',`/api/workorders/${S.woId}/issued`);
+        if (r.code!==200) throw Error(r.value.message);
+        S.issued = r.value.items;
+        $('fresh').textContent = `${S.woId} 待還料件已更新。`;
+      }
+    }
+  }catch(e){
+    S.loadError = (!S.workOrders.length?'工單':S.mode==='issue'?'料件庫存':'待還料件')+'讀取失敗：'+(e.message||'連線問題');
+    $('fresh').textContent='';
+  }
+  S.loading = false;
+  if (!currentItems().some(i=>i.partId===S.partId && maxQty(i)>0)) S.partId='';
+  renderList(); update();
+}
+
+/* ---------- 計算 ---------- */
+function currentItems(){
+  if (S.mode==='return') return S.issued;
+  const k = $('search').value.trim().toLowerCase();
+  return S.parts.filter(p=>(S.cat==='全部' || p.category===S.cat) && (!k || p.name.toLowerCase().includes(k) || p.partId.toLowerCase().includes(k)));
+}
+function maxQty(item){ return S.mode==='issue' ? item.stock : item.outstanding; }
+function chosen(){ return currentItems().find(i=>i.partId===S.partId); }
+function qtyState(){
+  const item = chosen(); const raw = $('qty').value.trim(); const n = Number(raw);
+  if (!item) return {ok:false,msg:'請先選擇料件。'};
+  const max = maxQty(item);
+  if (raw==='') return {ok:false,msg:'數量為必填。'};
+  if (!Number.isInteger(n) || n<1 || n>max) return {ok:false,msg:`請輸入 1–${max} 的整數（${S.mode==='issue'?'目前庫存':'此工單待還'} ${max} ${item.unit}）。`};
+  return {ok:true,n,max,item,msg:`可${S.mode==='issue'?'領':'還'} 1–${max} ${item.unit}。`};
+}
+
+/* ---------- 畫面 ---------- */
+function renderList(){
+  const list = $('list'), st = $('listStatus');
+  list.replaceChildren(); st.replaceChildren(); st.hidden = true; st.className='status';
+  if (S.loading){
+    for (let i=0;i<3;i++){ const d=document.createElement('div'); d.className='skeleton'; list.append(d); }
+    st.hidden=false; st.textContent = '正在讀取'+(S.mode==='issue'?'料件庫存':'待還料件')+'…'; return;
+  }
+  if (S.loadError){
+    st.hidden=false; st.className='status error';
+    st.append(Object.assign(document.createElement('p'),{textContent:S.loadError+'。已選的工單與數量不會清除。'}));
+    st.append(btn('重試讀取','secondary', loadList));
+    return;
+  }
+  if (S.mode==='return' && !S.woId){ st.hidden=false; st.textContent='請先在 01 選擇工單，才會列出這張工單領過、還沒歸還的料件。'; return; }
+  const items = currentItems();
+  if (!items.length){
+    st.hidden=false; st.className='status empty';
+    if (S.mode==='issue'){
+      const k=$('search').value.trim(), where=S.cat==='全部'?'':`「${S.cat}」分類中`;
+      st.append(Object.assign(document.createElement('p'),{textContent:`${where}找不到${k?`「${k}」`:''}相關料件。請換關鍵字或改選「全部」。`}));
+      st.append(btn('清除搜尋與分類','secondary',()=>{ $('search').value=''; S.cat='全部'; renderChips(); renderList(); update(); $('search').focus(); }));
+    } else {
+      st.append(Object.assign(document.createElement('p'),{textContent:`${S.woId} 目前沒有待還的料件。`}));
+      st.append(btn('改為領料','secondary',()=>setMode('issue')));
+    }
+    return;
+  }
+  for (const it of items){
+    const max = maxQty(it);
+    const lab = document.createElement('label'); lab.className='item';
+    const r = document.createElement('input'); r.type='radio'; r.name='part'; r.value=it.partId;
+    r.checked = it.partId===S.partId; r.dataset.out = max<1 ? '1' : '0'; r.disabled = max<1 || S.busy;
+    r.onchange = ()=>{ S.partId=it.partId; $('qty').value=1; S.pending=null; update(); };
+    const info = document.createElement('div');
+    const right = S.mode==='issue'
+      ? (max<1 ? '<span class="badge out">缺料</span>' : `<span class="badge">庫存 ${max} ${it.unit}</span>`)
+      : `<span class="badge">待還 ${max} ${it.unit}</span>`;
+    info.innerHTML = `<b></b><span class="meta"></span><br>${right}`;
+    info.querySelector('b').textContent = it.name;
+    info.querySelector('.meta').textContent = `${it.category ? it.category+'・' : ''}${it.partId}・儲位 ${it.location}`;
+    lab.append(r, info); list.append(lab);
+  }
+}
+const CATS = ['全部','CPU','RAM','硬碟','主機板','電源','配件'];
+function renderChips(){
+  $('chips').replaceChildren(...CATS.map(c=>{
+    const b = btn(c,'',()=>{ S.cat=c; renderChips(); renderList(); update(); document.querySelector(`#chips button[data-cat="${c}"]`).focus(); });
+    b.setAttribute('aria-pressed', String(S.cat===c)); b.dataset.cat=c; b.disabled=S.busy; return b;
+  }));
+}
+function btn(text, cls, fn){ const b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.onclick=fn; return b; }
+
+function update(){
+  const issue = S.mode==='issue';
+  $('tabIssue').setAttribute('aria-pressed', issue); $('tabReturn').setAttribute('aria-pressed', !issue);
+  $('title').textContent = issue?'依工單領料':'完工還料';
+  $('subtitle').textContent = issue?'選工單 → 選料件 → 填數量 → 確認，取得領料單號。':'選工單 → 選要歸還的料件 → 填數量與狀態 → 確認，取得還料單號。';
+  $('partsTitle').textContent = issue?'02 選擇料件':'02 選擇要歸還的料件';
+  $('qtyLabel').textContent = issue?'領料數量':'還料數量';
+  $('searchWrap').hidden = !issue; $('condBox').hidden = issue;
+  const w = S.workOrders.find(x=>x.workOrderId===S.woId);
+  $('woCard').hidden = !w; if (w) $('woCard').textContent = `設備：${w.equipment}｜狀況：${w.issue}`;
+
+  const q = qtyState();
+  $('qtyHint').textContent = q.msg;
+  $('qtyHint').className = 'hint' + (chosen() && !q.ok ? ' bad' : '');
+  $('qty').setAttribute('aria-invalid', String(!!chosen() && !q.ok));
+  const lock = S.busy;
+  for (const id of ['wo','search','refresh','tabIssue','tabReturn','reset']) $(id).disabled = lock;
+  document.querySelectorAll('#chips button').forEach(b=>b.disabled=lock);
+  $('qty').disabled = lock || !chosen();
+  $('minus').disabled = lock || !q.ok || q.n<=1;
+  $('plus').disabled  = lock || !q.ok || q.n>=q.max;
+  document.querySelectorAll('#list input').forEach(r=>{ r.disabled = lock || r.dataset.out==='1'; });
+
+  let label;
+  if (S.busy) label = '正在確認，請稍候…';
+  else if (S.loading) label = '讀取資料中…';
+  else if (!S.woId) label = '請先選擇工單';
+  else if (!chosen()) label = issue?'請選擇料件':'請選擇要歸還的料件';
+  else if (!q.ok) label = '請修正數量';
+  else label = `確認${issue?'領料':'還料'}・${q.item.name} × ${q.n} ${q.item.unit}`;
+  $('submit').textContent = label;
+  $('submit').disabled = S.busy || S.loading || !!S.loadError || !S.woId || !q.ok;
+}
+
+function showResult({title, rows, msg, isError, actions=[]}){
+  const box=$('result'); box.replaceChildren(); box.className='result'+(isError?' error':'');
+  box.append(Object.assign(document.createElement('h2'),{textContent:title}));
+  if (msg) box.append(Object.assign(document.createElement('p'),{textContent:msg}));
+  if (rows){ const dl=document.createElement('dl'); for(const [k,v] of rows){ dl.append(Object.assign(document.createElement('dt'),{textContent:k}),Object.assign(document.createElement('dd'),{textContent:v})); } box.append(dl); }
+  for (const a of actions) box.append(btn(a[0],'secondary',a[1]));
+  box.hidden=false; box.focus(); box.scrollIntoView({block:'nearest'});
+}
+
+function addLog(text){
+  S.logs.unshift(text);
+  $('log').replaceChildren(...S.logs.map(t=>Object.assign(document.createElement('li'),{textContent:t})));
+}
+
+/* ---------- 送出 ---------- */
+async function submit(){
+  const q = qtyState(); if (S.busy || !q.ok || !S.woId) return;   // 防止重複送出
+  const issue = S.mode==='issue';
+  const body = {workOrderId:S.woId, partId:S.partId, qty:q.n};
+  if (!issue) body.condition = document.querySelector('input[name=cond]:checked').value;
+  const key = JSON.stringify(body);
+  if (!S.pending || S.pending.key!==key) S.pending = {key, requestId:'REQ-'+Math.random().toString(36).slice(2,10)};
+  body.requestId = S.pending.requestId;
+
+  S.busy = true; update();
+  try{
+    const r = await exchange('POST', issue?'/api/issues':'/api/returns', body);
+    S.busy = false;
+    if (r.code===201){
+      const v = r.value; S.pending = null; S.partId=''; $('qty').value=1;
+      const time = new Date().toLocaleTimeString('zh-TW',{hour12:false});
+      if (issue){
+        showResult({title:'領料完成（練習資料）', msg:`請到儲位 ${v.location} 取料。`,
+          rows:[['領料單號',v.issueId],['工單',v.workOrderId],['料件',`${v.name}（${v.partId}）`],['數量',`${v.qty} ${v.unit}`],['剩餘庫存',`${v.remainingStock} ${v.unit}`],['時間',time]],
+          actions:[['同工單再領一項',()=>{$('result').hidden=true;$('secParts').scrollIntoView();}],['改為還料',()=>setMode('return')]]});
+        addLog(`${time}｜領料 ${v.issueId}｜${v.workOrderId}｜${v.name} × ${v.qty}`);
+      } else {
+        showResult({title:'還料完成（練習資料）', msg:`請將料件放回儲位 ${v.location}${v.condition==='已拆封可用'?'的待檢區':''}。`,
+          rows:[['還料單號',v.returnId],['工單',v.workOrderId],['料件',`${v.name}（${v.partId}）`],['數量',`${v.qty} ${v.unit}`],['狀態',v.condition],['此工單尚待還',`${v.remainingOutstanding} ${v.unit}`],['時間',time]],
+          actions:[['繼續還料',()=>{$('result').hidden=true;$('secParts').scrollIntoView();}]]});
+        addLog(`${time}｜還料 ${v.returnId}｜${v.workOrderId}｜${v.name} × ${v.qty}（${v.condition}）`);
+      }
+      await loadList();
+    } else if (r.code===409){
+      update();
+      showResult({title: issue?'庫存不足，這次沒有領料':'數量超過待還數量', isError:true,
+        msg: r.value.message + '。工單、料件與數量都已保留，請重新讀取後調整數量。',
+        actions:[['重新讀取並調整數量', async()=>{ $('result').hidden=true; await loadList(); $('qty').focus(); }]]});
+    } else {
+      update();
+      showResult({title:'資料有誤，沒有送出', isError:true, msg:r.value.message+'。請檢查欄位後再試。'});
+    }
+  }catch(e){
+    S.busy = false; update();
+    showResult({title:'連線中斷，無法確認結果', isError:true,
+      msg:'系統可能已經處理，也可能沒有。請按「安全重試」：會用同一個請求編號重送，不會重複'+(issue?'領料':'還料')+'。',
+      rows:[['請求編號',S.pending.requestId]],
+      actions:[['安全重試', submit]]});
+  }
+}
+
+/* ---------- 切換 ---------- */
+async function setMode(m){
+  if (S.busy) return;
+  S.mode=m; S.partId=''; S.pending=null; $('qty').value=1; $('result').hidden=true;
+  update(); await loadList(); scrollTo({top:0});
+}
+
+$('tabIssue').onclick = ()=>setMode('issue');
+$('tabReturn').onclick = ()=>setMode('return');
+$('wo').onchange = async()=>{ S.woId=$('wo').value; S.pending=null; update(); if (S.mode==='return') await loadList(); };
+$('search').oninput = ()=>{ renderList(); update(); };
+$('refresh').onclick = loadList;
+$('qty').oninput = ()=>{ S.pending=null; update(); };
+document.querySelectorAll('input[name=cond]').forEach(r=>r.onchange=()=>{S.pending=null;});
+$('minus').onclick = ()=>{ $('qty').value = Number($('qty').value)-1; update(); };
+$('plus').onclick  = ()=>{ $('qty').value = Number($('qty').value)+1; update(); };
+$('submit').onclick = submit;
+$('reset').onclick = async()=>{ await exchange('POST','/api/demo/reset',{}); S.woId=''; S.partId=''; S.pending=null; S.logs=[];
+  $('log').innerHTML='<li class="muted">尚無紀錄。完成領料或還料後會列在這裡，方便核對。</li>'; $('result').hidden=true; $('scenario').value='normal';
+  S.workOrders=[]; await loadList(); scrollTo({top:0}); };
+
+/* ---------- 啟動：判斷有沒有本機服務 ---------- */
+(async function start(){
+  if (location.protocol!=='file:') try{
+    const ctl = new AbortController(); setTimeout(()=>ctl.abort(), 800);
+    const r = await fetch('/api/ping',{signal:ctl.signal});
+    connected = r.ok && (await r.json()).ok === true;
+  }catch(e){ connected = false; }
+  $('mode').textContent = connected ? '本機服務模式：用 HTTP 交換資料（server.py）' : '本地模擬模式：資料只在此分頁，未連接真實料庫';
+  renderChips();
+  await loadList();
+})();
+</script>
+</body>
+</html>
